@@ -1,4 +1,4 @@
-# nodetools v0.1.0
+# domtools v0.1.0
 
 Toolkit for appending complex components to the DOM
 
