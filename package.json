@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/3lessthan/nodetools.git"
+    "url": "git+https://github.com/3lessthan/nodetools.git"
   },
   "keywords": [
     "toolkit",
@@ -20,5 +20,8 @@
   "author": "Adam Raposo",
   "license": "MIT",
   "homepage": "https://github.com/3lessthan/nodetools.git",
-  "devDependencies": {}
+  "devDependencies": {},
+  "bugs": {
+    "url": "https://github.com/3lessthan/nodetools/issues"
+  }
 }
