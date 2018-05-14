@@ -1,4 +1,4 @@
-function DOMTools() {
+function NodeTools() {
   /**
    * Given an option set from a nodeComponent object property,
    * will create a node and append it to the DOM.
