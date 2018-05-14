@@ -1,0 +1,24 @@
+{
+  "name": "nodetools",
+  "version": "0.1.0",
+  "description": "Toolkit for appending complex components to the DOM.",
+  "main": "nodetools.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/3lessthan/nodetools.git"
+  },
+  "keywords": [
+    "toolkit",
+    "node",
+    "dom",
+    "components",
+    "web components lite"
+  ],
+  "author": "Adam Raposo",
+  "license": "MIT",
+  "homepage": "https://github.com/3lessthan/nodetools.git",
+  "devDependencies": {}
+}
