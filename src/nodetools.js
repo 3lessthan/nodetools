@@ -45,13 +45,12 @@ function NodeTools() {
    */
   this.appendComponent = function (component) {
     for (let node in component) {
-      // skip loop if the property is from prototype
       if (!component.hasOwnProperty(node)) continue;
-      if (Array.isArray(node)) {
-        for (let i = 0; i < node.length; i++) {
+      if (Array.isArray(component[node]))
+        for (let i = 0, n = component[node].length; i < n; i++) {
           this.appendNode(component[node][i]);
         }
-      } else
+      else
         this.appendNode(component[node]);
     }
   };
