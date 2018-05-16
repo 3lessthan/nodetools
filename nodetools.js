@@ -1,43 +1,47 @@
 (function () {
 
   /**
-   * Given an option set from a nodeComponent object property,
-   * will create a node and append it to the DOM.
-   * @param {Object} options - The type/parameters/text content to add to created node
+   * Given an option set from a `nodeComponent` object property, will create a node
+   * and append it to the DOM.
+   * @param {Object} options - `nodeComponent` object
    */
   exports.appendNode = function (options) {
-    if (options.hasOwnProperty('e')) {
-      let node = document.createElement(options.e),
-        parent = document.getElementById(options.parent);
+    // Test for existence of parent property
+    if (options.hasOwnProperty('parent')) {
+      // Test for existence of parent element
+      let parent = document.getElementById(options.parent);
+      if (parent) {
+        if (options.hasOwnProperty('e')) {
+          // Create node
+          let node = document.createElement(options.e);
+          // If text option exists, append it
+          if (options.hasOwnProperty('text'))
+            node.appendChild(document.createTextNode(options.text));
 
-      // If text option exists, append it
-      if (options.hasOwnProperty('text'))
-        node.appendChild(document.createTextNode(options.text));
-
-      if (options.hasOwnProperty('params')) {
-        // Loop through parameters and append them
-        let params = options.params;
-        for (let key in params) {
-          if (!params.hasOwnProperty(key)) continue;
-          let param = document.createAttribute(key);
-          if (options.params[key] !== null) param.value = options.params[key];
-          node.setAttributeNode(param);
+          // Loop through parameters and append them
+          if (options.hasOwnProperty('params')) {
+            let params = options.params;
+            for (let key in params) {
+              if (!params.hasOwnProperty(key)) continue;
+              let param = document.createAttribute(key);
+              if (options.params[key] !== null) param.value = options.params[key];
+              node.setAttributeNode(param);
+            }
+            parent.appendChild(node);
+            if (options.hasOwnProperty('html')) node.innerHTML = options.html;
+            if (params.hasOwnProperty('id')) return document.getElementById(params.id);
+          } else {
+            // Else, append the node as is
+            parent.appendChild(node);
+            if (options.hasOwnProperty('html')) node.innerHTML = options.html;
+          }
         }
-        parent.appendChild(node);
-        if (options.hasOwnProperty('html')) node.innerHTML = options.html;
-        if (params.hasOwnProperty('id')) return document.getElementById(params.id);
-      } else {
-        // Else, append the node as is
-        parent.appendChild(node);
-        if (options.hasOwnProperty('html')) node.innerHTML = options.html;
-      }
-    } else if (options.hasOwnProperty('text') && options.hasOwnProperty('parent')) {
-      let parent = document.getElementById(options.parent);
-      parent.innerHTML += options.text;
-    } else if (options.hasOwnProperty('html') && options.hasOwnProperty('parent')) {
-      let parent = document.getElementById(options.parent);
-      parent.innerHTML += options.html;
-    }
+        // If only text/html & parent is provided, append text to innerHTML
+        else if (options.hasOwnProperty('text') || options.hasOwnProperty('html'))
+          parent.innerHTML += options.text;
+        else console.log('appendNode failed, invalid properties provided.');
+      } else console.log('appendNode failed, invalid parent id:',options.parent);
+    } else   console.log('appendNode failed, no parent id provided.');
   };
 
   /**
@@ -62,7 +66,7 @@
    * @param {DOMElement|string} element The DOMElement node or id attribute of a DOM Element to remove all children from
    */
   exports.removeChildren = function (element) {
-    element = (typeof element === 'string' ? document.querySelector(element) : element);
+    element = (typeof element == 'string' ? document.querySelector(element) : element);
     while (element.firstChild) {
       element.removeChild(element.firstChild);
     }
@@ -79,7 +83,7 @@
     for (let i = 0; i < elements.length; i++) {
       let id;
       if (typeof xfix == 'string') {
-        id = (preFlag === undefined || preFlag === false ? elements[i] + xfix : xfix + elements[i]);
+        id = (!preFlag ? elements[i] + xfix : xfix + elements[i]);
       } else {
         id = elements[i];
       }
@@ -113,7 +117,7 @@
    */
   exports.setSelectValue = function (elementID, index) {
     let e = document.querySelector(elementID);
-    e.selectedIndex = (index == undefined ? -1 : index);
+    e.selectedIndex = (!index ? -1 : index);
   };
 
 }).call(this);
