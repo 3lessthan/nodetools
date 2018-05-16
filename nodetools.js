@@ -66,7 +66,7 @@
    * @param {DOMElement|string} element The DOMElement node or id attribute of a DOM Element to remove all children from
    */
   exports.removeChildren = function (element) {
-    element = (typeof element == 'string' ? document.querySelector(element) : element);
+    element = (typeof element === 'string' ? document.querySelector(element) : element);
     while (element.firstChild) {
       element.removeChild(element.firstChild);
     }
@@ -117,7 +117,7 @@
    */
   exports.setSelectValue = function (elementID, index) {
     let e = document.querySelector(elementID);
-    e.selectedIndex = (!index ? -1 : index);
+    e.selectedIndex = (index == undefined ? -1 : index);
   };
 
 }).call(this);

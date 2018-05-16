@@ -1,4 +1,4 @@
-function NodeTools() {
+(function () {
 
   /**
    * Given an option set from a `nodeComponent` object property, will create a node
@@ -66,7 +66,7 @@ function NodeTools() {
    * @param {DOMElement|string} element The DOMElement node or id attribute of a DOM Element to remove all children from
    */
   this.removeChildren = function (element) {
-    element = (typeof element == 'string' ? document.querySelector(element) : element);
+    element = (typeof element === 'string' ? document.querySelector(element) : element);
     while (element.firstChild) {
       element.removeChild(element.firstChild);
     }
@@ -117,6 +117,7 @@ function NodeTools() {
    */
   this.setSelectValue = function (elementID, index) {
     let e = document.querySelector(elementID);
-    e.selectedIndex = (!index ? -1 : index);
+    e.selectedIndex = (index == undefined ? -1 : index);
   };
-}
+
+}).call(this);
