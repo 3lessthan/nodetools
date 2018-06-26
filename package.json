@@ -2,9 +2,11 @@
   "name": "@3lessthan/nodetools",
   "version": "0.9.12",
   "description": "Toolkit for appending complex components to the DOM.",
-  "main": "nodetools.js",
+  "main": "dist/nodetools.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/_mocha",
+    "build:babel": "./node_modules/.bin/babel src/js -d lib",
+    "build": "./node_modules/.bin/grunt"
   },
   "repository": {
     "type": "git",
@@ -20,5 +22,12 @@
   "author": "Adam Raposo",
   "license": "MIT",
   "homepage": "https://github.com/3lessthan/nodetools.git",
-  "devDependencies": {}
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "grunt": "^1.0.3",
+    "grunt-babel": "^7.0.0",
+    "grunt-cli": "^1.2.0",
+    "load-grunt-tasks": "^4.0.0"
+  }
 }

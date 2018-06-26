@@ -1,4 +1,8 @@
-(function () {
+'use strict';
+
+define(function () {
+
+  var exports = Object.create(null);
 
   /**
    * Given an option set from a `nodeComponent` object property, will create a node
@@ -9,21 +13,20 @@
     // Test for existence of parent property
     if (options.hasOwnProperty('parent')) {
       // Test for existence of parent element
-      let parent = document.getElementById(options.parent);
+      var parent = document.getElementById(options.parent);
       if (parent) {
         if (options.hasOwnProperty('e')) {
           // Create node
-          let node = document.createElement(options.e);
+          var node = document.createElement(options.e);
           // If text option exists, append it
-          if (options.hasOwnProperty('text'))
-            node.appendChild(document.createTextNode(options.text));
+          if (options.hasOwnProperty('text')) node.appendChild(document.createTextNode(options.text));
 
           // Loop through parameters and append them
           if (options.hasOwnProperty('params')) {
-            let params = options.params;
-            for (let key in params) {
+            var params = options.params;
+            for (var key in params) {
               if (!params.hasOwnProperty(key)) continue;
-              let param = document.createAttribute(key);
+              var param = document.createAttribute(key);
               if (options.params[key] !== null) param.value = options.params[key];
               node.setAttributeNode(param);
             }
@@ -37,11 +40,9 @@
           }
         }
         // If only text/html & parent is provided, append text to innerHTML
-        else if (options.hasOwnProperty('text') || options.hasOwnProperty('html'))
-          parent.innerHTML += options.text;
-        else console.log('appendNode failed, invalid properties provided.');
-      } else console.log('appendNode failed, invalid parent id:',options.parent);
-    } else   console.log('appendNode failed, no parent id provided.');
+        else if (options.hasOwnProperty('text') || options.hasOwnProperty('html')) parent.innerHTML += options.text; else console.log('appendNode failed, invalid properties provided.');
+      } else console.log('appendNode failed, invalid parent id:', options.parent);
+    } else console.log('appendNode failed, no parent id provided.');
   };
 
   /**
@@ -49,14 +50,11 @@
    * @param {Object} component - The nodeComponent to add to the DOM
    */
   exports.appendComponent = function (component) {
-    for (let node in component) {
+    for (var node in component) {
       if (!component.hasOwnProperty(node)) continue;
-      if (Array.isArray(component[node]))
-        for (let i = 0, n = component[node].length; i < n; i++) {
-          this.appendNode(component[node][i]);
-        }
-      else
-        this.appendNode(component[node]);
+      if (Array.isArray(component[node])) for (var i = 0, n = component[node].length; i < n; i++) {
+        this.appendNode(component[node][i]);
+      } else this.appendNode(component[node]);
     }
   };
 
@@ -66,7 +64,7 @@
    * @param {DOMElement|string} element The DOMElement node or id attribute of a DOM Element to remove all children from
    */
   exports.removeChildren = function (element) {
-    element = (typeof element === 'string' ? document.querySelector(element) : element);
+    element = typeof element === 'string' ? document.querySelector(element) : element;
     while (element.firstChild) {
       element.removeChild(element.firstChild);
     }
@@ -80,10 +78,10 @@
    * @param {boolean} [preFlag=false] If `true`, will prepend `xfix` to each string in `elements`
    */
   exports.removeGroupChildren = function (elements, xfix, preFlag) {
-    for (let i = 0; i < elements.length; i++) {
-      let id;
+    for (var i = 0; i < elements.length; i++) {
+      var id = void 0;
       if (typeof xfix == 'string') {
-        id = (!preFlag ? elements[i] + xfix : xfix + elements[i]);
+        id = !preFlag ? elements[i] + xfix : xfix + elements[i];
       } else {
         id = elements[i];
       }
@@ -99,7 +97,7 @@
    * @returns {string|number}           The `select` element's selected `option`'s `value` parameter.
    */
   exports.getSelectValue = function (elementID, type) {
-    let e = document.querySelector(elementID);
+    var e = document.querySelector(elementID);
     switch (type) {
       case 'int':
         return parseInt(e.options[e.selectedIndex].value);
@@ -116,8 +114,8 @@
    * @param {number} index      The index of the `option` element to mark as `selected`.
    */
   exports.setSelectValue = function (elementID, index) {
-    let e = document.querySelector(elementID);
-    e.selectedIndex = (index == undefined ? -1 : index);
+    var e = document.querySelector(elementID);
+    e.selectedIndex = index == undefined ? -1 : index;
   };
 
   /**
@@ -131,4 +129,6 @@
     return [].slice.call(nodeList);
   };
 
-}).call(this);
+  return exports;
+
+});
