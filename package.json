@@ -1,6 +1,6 @@
 {
   "name": "@3lessthan/nodetools",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "Toolkit for appending complex components to the DOM.",
   "main": "nodetools.js",
   "scripts": {
