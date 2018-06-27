@@ -1,5 +1,7 @@
 (function () {
 
+  const HTMLELMS = new RegExp(/(?:^a(?:bbr|cronym|ddress|pplet|r(?:ea|ticle)|side|udio)?$)|(?:^b(?:ase(?:font)?|d[io]|ig|lockquote|ody|r|utton)?$)|(?:^c(?:a(?:nvas|ption)|enter|ite|o(?:de|l(?:group)?))$)|(?:^d(?:ata(?:list)?|d|e(?:l|tails)|fn|i(?:alog|[rv])|[lt])$)|(?:^em(?:bed)?$)|(?:^f(?:i(?:eldset|g(?:caption|ure))|o(?:nt|oter|rm)|rame(?:set)?)$)|(?:^h(?:[1-6]|ead(?:er)?|r|tml)$)|(?:^i(?:frame|mg|n(?:put|s))?$)|(?:^kbd$)|(?:^l(?:abel|egend|i(?:nk)?)$)|(?:^m(?:a(?:in|p|rk)|et(?:a|er))$)|(?:^n(?:av|o(?:frames|script))$)|(?:^o(?:bject|l|pt(?:group|ion)|utput)$)|(?:^p(?:aram|icture|r(?:e|ogress))?$)|(?:^q$)|(?:^r(?:[pt]|uby)$)|(?:^s(?:amp|cript|e(?:ction|lect)|mall|ource|pan|t(?:r(?:ike|ong)|yle)|u(?:[bp]|mmary)|vg)?$)|(?:^t(?:able|body|[dt]|e(?:mplate|xtarea)|foot|h(?:ead)?|i(?:me|tle)|r(?:ack)?)$)|(?:^ul?$)|(?:^v(?:ar|ideo)$)|(?:^wbr$)/i);
+
   /**
    * Given an option set from a `nodeComponent`
    * object property, will create a node and
@@ -12,7 +14,7 @@
     // Test for existence of parent property
     if (options.hasOwnProperty('parent')) {
       // Test for existence of parent element
-      let parent = getHTMLElementById(options.parent);
+      let parent = getHTMLElement(options.parent);
       if (parent) {
         if (options.hasOwnProperty('e')) {
           // Create node
@@ -32,7 +34,7 @@
             }
             parent.appendChild(node);
             if (options.hasOwnProperty('html')) node.innerHTML = options.html;
-            if (params.hasOwnProperty('id')) return getHTMLElementById(params.id);
+            if (params.hasOwnProperty('id')) return getHTMLElement(params.id);
           } else {
             // Else, append the node as is
             parent.appendChild(node);
@@ -75,7 +77,7 @@
    *   DOM Element to remove all children from.
    */
   exports.removeChildren = function (element) {
-    element = getHTMLElementById(element);
+    element = getHTMLElement(element);
     while (element.firstChild) {
       element.removeChild(element.firstChild);
     }
@@ -98,7 +100,7 @@
       }
     else if (Array.isArray(elements))
       for (let e of elements) {
-        this.removeChildren(getHTMLElementById(e));
+        this.removeChildren(getHTMLElements(e));
       }
     else console.error( `[nodetools.removeGroupChildren] Notice: Cannot get HTMLElements from: ${ elements }` );
   };
@@ -122,9 +124,18 @@
           console.error( `[nodetools.nodeListToArray] Notice: Cannot get NodeList from: ${ nodeList }` );
   };
 
-  const getHTMLElementById = function ( e ) {
-    return e instanceof HTMLElement ?
-      e : getHTMLElementById( document.querySelector( typeof e !== 'string' ? undefined : e.charAt() === '#' ? e : '#' + e ) );
+  const eHTMLGet = function(e, many) {
+    return e instanceof HTMLElement || e instanceof NodeList ? e :
+      HTMLELMS.test(e) ? document[many ? 'querySelectorAll' : 'querySelector'](e) :
+        eHTMLGet( document[many ? 'querySelectorAll' : 'querySelector'](typeof e !== 'string' ? undefined : e.charAt() === '#' || e.charAt() === '.' ? e : '#' + e), many);
+  };
+
+  const getHTMLElement = function (e) {
+    return eHTMLGet.call(undefined, e, false);
+  };
+
+  const getHTMLElements = function (e) {
+    return eHTMLGet.call(undefined, e, true);
   };
 
   const isUndefOrNaN = function ( v ) {
@@ -133,11 +144,10 @@
 
 
   const selectIndex = function ( funcName, element, callback, ...args ) {
-    return (element instanceof HTMLSelectElement) ?
-      callback(element, ...args) :
-      (typeof element === 'string') ?
-        this[funcName](getHTMLElementById(element), ...args) :
-        console.error(`[nodetools.${funcName}] Notice: Cannot get HTMLSelectElement from: ${ element }`);
+    return (element instanceof HTMLSelectElement) ? callback(element, ...args) :
+             (element instanceof NodeList) ? this.nodeListToArray(element).forEach( v => callback(v, ...args)) :
+               (typeof element === 'string') ? this[funcName]( getHTMLElements(element), ...args) :
+                  console.error(`[nodetools.${funcName}] Notice: Cannot get HTMLSelectElement from: ${ element }`);
   };
 
   /**

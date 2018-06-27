@@ -2,6 +2,8 @@
 
 (function () {
 
+  var HTMLELMS = new RegExp(/(?:^a(?:bbr|cronym|ddress|pplet|r(?:ea|ticle)|side|udio)?$)|(?:^b(?:ase(?:font)?|d[io]|ig|lockquote|ody|r|utton)?$)|(?:^c(?:a(?:nvas|ption)|enter|ite|o(?:de|l(?:group)?))$)|(?:^d(?:ata(?:list)?|d|e(?:l|tails)|fn|i(?:alog|[rv])|[lt])$)|(?:^em(?:bed)?$)|(?:^f(?:i(?:eldset|g(?:caption|ure))|o(?:nt|oter|rm)|rame(?:set)?)$)|(?:^h(?:[1-6]|ead(?:er)?|r|tml)$)|(?:^i(?:frame|mg|n(?:put|s))?$)|(?:^kbd$)|(?:^l(?:abel|egend|i(?:nk)?)$)|(?:^m(?:a(?:in|p|rk)|et(?:a|er))$)|(?:^n(?:av|o(?:frames|script))$)|(?:^o(?:bject|l|pt(?:group|ion)|utput)$)|(?:^p(?:aram|icture|r(?:e|ogress))?$)|(?:^q$)|(?:^r(?:[pt]|uby)$)|(?:^s(?:amp|cript|e(?:ction|lect)|mall|ource|pan|t(?:r(?:ike|ong)|yle)|u(?:[bp]|mmary)|vg)?$)|(?:^t(?:able|body|[dt]|e(?:mplate|xtarea)|foot|h(?:ead)?|i(?:me|tle)|r(?:ack)?)$)|(?:^ul?$)|(?:^v(?:ar|ideo)$)|(?:^wbr$)/i);
+
   /**
    * Given an option set from a `nodeComponent`
    * object property, will create a node and
@@ -14,7 +16,7 @@
     // Test for existence of parent property
     if (options.hasOwnProperty('parent')) {
       // Test for existence of parent element
-      var parent = getHTMLElementById(options.parent);
+      var parent = getHTMLElement(options.parent);
       if (parent) {
         if (options.hasOwnProperty('e')) {
           // Create node
@@ -33,7 +35,7 @@
             }
             parent.appendChild(node);
             if (options.hasOwnProperty('html')) node.innerHTML = options.html;
-            if (params.hasOwnProperty('id')) return getHTMLElementById(params.id);
+            if (params.hasOwnProperty('id')) return getHTMLElement(params.id);
           } else {
             // Else, append the node as is
             parent.appendChild(node);
@@ -96,7 +98,7 @@
    *   DOM Element to remove all children from.
    */
   exports.removeChildren = function (element) {
-    element = getHTMLElementById(element);
+    element = getHTMLElement(element);
     while (element.firstChild) {
       element.removeChild(element.firstChild);
     }
@@ -124,7 +126,7 @@
         for (var _iterator2 = elements[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
           var e = _step2.value;
 
-          this.removeChildren(getHTMLElementById(e));
+          this.removeChildren(getHTMLElements(e));
         }
       } catch (err) {
         _didIteratorError2 = true;
@@ -158,8 +160,16 @@
     return nodeList instanceof NodeList ? [].slice.call(nodeList) : typeof nodeList === 'string' ? this.nodeListToArray(document.querySelectorAll(nodeList)) : console.error('[nodetools.nodeListToArray] Notice: Cannot get NodeList from: ' + nodeList);
   };
 
-  var getHTMLElementById = function getHTMLElementById(e) {
-    return e instanceof HTMLElement ? e : getHTMLElementById(document.querySelector(typeof e !== 'string' ? undefined : e.charAt() === '#' ? e : '#' + e));
+  var eHTMLGet = function eHTMLGet(e, many) {
+    return e instanceof HTMLElement || e instanceof NodeList ? e : HTMLELMS.test(e) ? document[many ? 'querySelectorAll' : 'querySelector'](e) : eHTMLGet(document[many ? 'querySelectorAll' : 'querySelector'](typeof e !== 'string' ? undefined : e.charAt() === '#' || e.charAt() === '.' ? e : '#' + e), many);
+  };
+
+  var getHTMLElement = function getHTMLElement(e) {
+    return eHTMLGet.call(undefined, e, false);
+  };
+
+  var getHTMLElements = function getHTMLElements(e) {
+    return eHTMLGet.call(undefined, e, true);
   };
 
   var isUndefOrNaN = function isUndefOrNaN(v) {
@@ -171,7 +181,9 @@
       args[_key - 3] = arguments[_key];
     }
 
-    return element instanceof HTMLSelectElement ? callback.apply(undefined, [element].concat(args)) : typeof element === 'string' ? this[funcName].apply(this, [getHTMLElementById(element)].concat(args)) : console.error('[nodetools.' + funcName + '] Notice: Cannot get HTMLSelectElement from: ' + element);
+    return element instanceof HTMLSelectElement ? callback.apply(undefined, [element].concat(args)) : element instanceof NodeList ? this.nodeListToArray(element).forEach(function (v) {
+      return callback.apply(undefined, [v].concat(args));
+    }) : typeof element === 'string' ? this[funcName].apply(this, [getHTMLElements(element)].concat(args)) : console.error('[nodetools.' + funcName + '] Notice: Cannot get HTMLSelectElement from: ' + element);
   };
 
   /**
