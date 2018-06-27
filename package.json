@@ -1,8 +1,8 @@
 {
   "name": "@3lessthan/nodetools",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Toolkit for appending complex components to the DOM.",
-  "main": "dist/nodetools.js",
+  "main": "nodetools.js",
   "scripts": {
     "test": "./node_modules/.bin/_mocha",
     "build:babel": "./node_modules/.bin/babel src/js -d lib",
