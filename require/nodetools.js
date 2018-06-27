@@ -1,4 +1,4 @@
-(function () {
+define(function () {
 
   let exports = Object.create(null);
 
