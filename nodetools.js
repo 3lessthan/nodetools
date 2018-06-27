@@ -1,15 +1,18 @@
 (function () {
 
   /**
-   * Given an option set from a `nodeComponent` object property, will create a node
-   * and append it to the DOM.
-   * @param {Object} options - `nodeComponent` object
+   * Given an option set from a `nodeComponent`
+   * object property, will create a node and
+   * append it to the DOM.
+   *
+   * @param {object} options -
+   *   `nodeComponent` object
    */
   exports.appendNode = function (options) {
     // Test for existence of parent property
     if (options.hasOwnProperty('parent')) {
       // Test for existence of parent element
-      let parent = document.getElementById(options.parent);
+      let parent = getHTMLElementById(options.parent);
       if (parent) {
         if (options.hasOwnProperty('e')) {
           // Create node
@@ -29,7 +32,7 @@
             }
             parent.appendChild(node);
             if (options.hasOwnProperty('html')) node.innerHTML = options.html;
-            if (params.hasOwnProperty('id')) return document.getElementById(params.id);
+            if (params.hasOwnProperty('id')) return getHTMLElementById(params.id);
           } else {
             // Else, append the node as is
             parent.appendChild(node);
@@ -45,90 +48,161 @@
   };
 
   /**
-   * Given a nodeComponent, will loop through each of the properties and append each to the DOM.
-   * @param {Object} component - The nodeComponent to add to the DOM
+   * Given a `nodeComponent`, will loop through
+   * all of its properties and append each to
+   * the DOM.
+   *
+   * @param {object} component -
+   *   The `nodeComponent` to add to the DOM
    */
   exports.appendComponent = function (component) {
     for (let node in component) {
       if (!component.hasOwnProperty(node)) continue;
       if (Array.isArray(component[node]))
-        for (let i = 0, n = component[node].length; i < n; i++) {
-          this.appendNode(component[node][i]);
-        }
-      else
-        this.appendNode(component[node]);
+        for (let n of component[node]) { this.appendNode(n); }
+      else this.appendNode(component[node]);
     }
   };
 
   /**
-   * Removes all children of the passed element, or the element with the passed id.
-   * If the `element` argument is a string, it must be the element's id.
-   * @param {DOMElement|string} element The DOMElement node or id attribute of a DOM Element to remove all children from
+   * Removes all children of the passed element,
+   * or the element with the passed id.
+   * If the `element` argument is a string, it
+   * must be the element's id.
+   *
+   * @param {DOMElement|string} element -
+   *   The DOM Element node or id attribute of a
+   *   DOM Element to remove all children from.
    */
   exports.removeChildren = function (element) {
-    element = (typeof element === 'string' ? document.querySelector(element) : element);
+    element = getHTMLElementById(element);
     while (element.firstChild) {
       element.removeChild(element.firstChild);
     }
   };
 
   /**
-   * Given an array of element ids, and optionally a pre/postfix string to append to the id list,
-   * loops through the elements, removing all of each of their children.
-   * @param {Array.<string>} elements An array of DOM Element id strings to remove all children from
-   * @param {string} [xfix] A string to append/prepend to each string in `elements`. (Appends by default)
-   * @param {boolean} [preFlag=false] If `true`, will prepend `xfix` to each string in `elements`
+   * Given an array of element ids, and optionally,
+   * a pre/postfix string to append to the id list,
+   * loops through the elements, removing all of
+   * each of their children.
+   *
+   * @param {string[]} elements -
+   *   An array of DOM Element id strings to remove
+   *   all children from.
    */
-  exports.removeGroupChildren = function (elements, xfix, preFlag) {
-    for (let i = 0; i < elements.length; i++) {
-      let id;
-      if (typeof xfix == 'string') {
-        id = (!preFlag ? elements[i] + xfix : xfix + elements[i]);
-      } else {
-        id = elements[i];
+  exports.removeGroupChildren = function (elements) {
+    if (elements instanceof NodeList)
+      for (let n = 0, nl = this.nodeListToArray(elements); n < nl.length; n++) {
+        this.removeChildren(nl[n]);
       }
-      this.removeChildren(id);
-    }
+    else if (Array.isArray(elements))
+      for (let e of elements) {
+        this.removeChildren(getHTMLElementById(e));
+      }
+    else console.error( `[nodetools.removeGroupChildren] Notice: Cannot get HTMLElements from: ${ elements }` );
   };
 
   /**
-   * Given a `select` element's `id` in the form of a string, returns the
-   * selected `option`'s `value`. Optionally, specify a data type to return.
-   * @param   {string} elementID        The `id` of the `select` element
-   * @param   {string} [type=string]    The return value's data type [Default: `string`]
-   * @returns {string|number}           The `select` element's selected `option`'s `value` parameter.
-   */
-  exports.getSelectValue = function (elementID, type) {
-    let e = document.querySelector(elementID);
-    switch (type) {
-      case 'int':
-        return parseInt(e.options[e.selectedIndex].value);
-      default:
-        return e.options[e.selectedIndex].value;
-    }
-  };
-
-  /**
-   * Given a `select` element's `id` in the form of a string, gives the
-   * `option` element at the given `index` a `selected` parameter.
-   * Note: Passing `-1` as `index` or not defining it to clears selection.
-   * @param {string} elementID  The `id` parameter of the `select` element
-   * @param {number} index      The index of the `option` element to mark as `selected`.
-   */
-  exports.setSelectValue = function (elementID, index) {
-    let e = document.querySelector(elementID);
-    e.selectedIndex = (index == undefined ? -1 : index);
-  };
-
-  /**
-   * Given a nodeList, returns its contents as an array.
+   * Given a nodeList, returns its contents as
+   * an array. If nodeList is a string, it will
+   * try to get a NodeList using `querySelectorAll`.
+   *
    * @param {nodeList} nodeList -
    *   A nodeList
+   *
    * @returns {Node[]} -
    *   The nodeList in the form of an array.
    */
-  exports.nodeListToArray = function (nodeList) {
-    return [].slice.call(nodeList);
+  exports.nodeListToArray = function ( nodeList ) {
+    return nodeList instanceof NodeList ?
+      [].slice.call( nodeList ) :
+        typeof nodeList === 'string' ?
+          this.nodeListToArray( document.querySelectorAll( nodeList ) ) :
+          console.error( `[nodetools.nodeListToArray] Notice: Cannot get NodeList from: ${ nodeList }` );
+  };
+
+  const getHTMLElementById = function ( e ) {
+    return e instanceof HTMLElement ?
+      e : getHTMLElementById( document.querySelector( typeof e !== 'string' ? undefined : e.charAt() === '#' ? e : '#' + e ) );
+  };
+
+  const isUndefOrNaN = function ( v ) {
+    return v === undefined || Number.isNaN( parseInt( v ) );
+  };
+
+
+  const selectIndex = function ( funcName, element, callback, ...args ) {
+    return (element instanceof HTMLSelectElement) ?
+      callback(element, ...args) :
+      (typeof element === 'string') ?
+        this[funcName](getHTMLElementById(element), ...args) :
+        console.error(`[nodetools.${funcName}] Notice: Cannot get HTMLSelectElement from: ${ element }`);
+  };
+
+  /**
+   * Given a `select` HTML element's `id` in the
+   * form of a string, gives the `option` element
+   * at the given `index` a `selected` parameter.
+   *
+   * > Note: Passing `-1` as `index` or not
+   *         defining it clears selection.
+   *
+   * @param {string} elementID -
+   *   The `id` parameter of the `select`
+   *   element
+   *
+   * @param {number} index -
+   *   The index of the `option` element to
+   *   mark as `selected`.
+   */
+  exports.setSelectIndex = function (selectElement, index) {
+    return selectIndex.call(
+      this, 'setSelectIndex', selectElement,
+      (e, i) => e.selectedIndex = isUndefOrNaN(i) ? -1 : parseInt(i),
+      index
+    );
+  };
+
+  /**
+   * Given a `select` element, by way of the HTML
+   * Element itself, or the `id` in the form of a
+   * string, returns the selected option's index.
+   *
+   * @param   {string} elementID -
+   *   The `id` of the `select` element
+   *
+   * @returns {string|number} -
+   *   The `select` element's selected `option`'s
+   *   `index`.
+   */
+  exports.getSelectIndex = function (selectElement) {
+    return selectIndex.call(
+      this, 'getSelectIndex', selectElement,
+      e => e.options[e.selectedIndex]
+    );
+  };
+
+  /**
+   * Given a `select` element's `id` in the form of a
+   * string, returns the selected `option`'s `value`.
+   * Optionally, specify a data type to return.
+   *
+   * @param   {string} elementID -
+   *   The `id` of the `select` element
+   *
+   * @param   {string} [type=string] -
+   *   The return value's data type [Default: `string`]
+   *
+   * @returns {string|number} -
+   *   The `select` element's selected `option`'s
+   *   `value` parameter.
+   */
+  exports.getSelectValue = function (selectElement) {
+    return selectIndex.call(
+      this, 'getSelectIndex', selectElement,
+      e => e.options[e.selectedIndex].value
+    );
   };
 
 }).call(this);
