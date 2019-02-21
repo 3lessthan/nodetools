@@ -1,7 +1,7 @@
 {
   "presets": [
     [
-      "env",
+      "@babel/preset-env",
       {
         "targets": {
           "browsers": [
@@ -10,8 +10,7 @@
           ],
           "ie": "11"
         },
-        "useBuiltIns": true,
-        "uglify": false
+        "useBuiltIns": "usage"
       }
     ]
   ]
